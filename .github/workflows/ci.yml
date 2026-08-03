@@ -76,3 +76,6 @@ jobs:
       # Asserts the named normative properties still exist in spec/. Catches an
       # edit that silently removes a quality bar or an exit condition.
       - run: node scripts/spec-drift-check.mjs
+      # Asserts every doc link and anchor resolves. Added after a restructure
+      # left two specs citing filenames that no longer existed.
+      - run: node scripts/link-check.mjs

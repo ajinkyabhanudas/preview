@@ -7,7 +7,7 @@
 | Version | 0.1 (draft) |
 | Status | Draft. No code exists. |
 | Date | July 2026 |
-| Companion document (in repo) | `SPEC-preview-standard-v0.1.md` — the rules being enforced. Governs this document per §0.1. |
+| Companion document (in repo) | [`standard-v0.1.md`](standard-v0.1.md) — the rules being enforced. Governs this document per §0.1. |
 | Upstream documents (not in repo) | Technical design (architecture and ADRs, referenced throughout as "the TDD"), product requirements, and the validation plan. These are the author's private reasoning layer and are deliberately not published. This specification is written to stand alone without them. |
 
 ---
