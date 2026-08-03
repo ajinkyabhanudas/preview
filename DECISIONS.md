@@ -296,6 +296,62 @@ a structural check (headings and MUST-count per section) rather than deleting it
 
 ---
 
+## D10 — Node and TypeScript, not Python
+
+**Status:** ACTIVE · 2026-08
+
+**Context.** The renderer needs a language. This choice determines the
+distribution mechanism, the test tooling, and the maintenance burden, and it is
+expensive to reverse once rendering lands.
+
+**Options considered.**
+
+1. **Python.** Matches Canopy and youk (two of three sibling repositories).
+   `hypothesis` is a stronger property-testing library than `fast-check`, and the
+   invariant is the entire product. First-class ML ecosystem if graders ever
+   become model-backed.
+2. **Node + TypeScript.** `npx preview build` runs with no prior install. Better
+   static-site tooling.
+
+**Decision.** Node + TypeScript.
+
+**What settled it — the project's own documents.** The deciding question was
+whether Preview is eval tooling (which would make it a Python product) or a
+document renderer in an AI-adjacent domain. Four independent statements answer
+it:
+
+- The discovery interview: *"the metric comes from the host project's own
+  measurement rather than the contributor's self report."*
+- PRD §5.1: *"a **static generator** that reads `docs/product/` and `evals/`
+  … Eval results become **charts**."* Reads and charts, never runs.
+- PRD FR-6: *"Nothing is authored inside the renderer. The repo is canonical and
+  the site is a **projection** of it."*
+- The technical design, out of scope: *"The eval harness itself, which is **user
+  owned and out of my trust boundary entirely**."*
+
+**Preview never executes an eval.** It reads a golden set to confirm it is
+non-empty and hashes it. It never parses a case, never runs a grader, never
+computes a metric. ADR-006 forbids model inference permanently, and the runtime
+dependency list is one library (`yaml`).
+
+So Python's strongest argument — the ML and eval ecosystem — has nothing to act
+on here. With domain fit neutral, distribution decides, and PRD §5.1 already
+specifies `npx preview build`. An installer that requires a working Python
+interpreter first is friction against KR 3.1's thirty-minute target.
+
+**Accepted cost.** A second toolchain in the portfolio. `fast-check` is a weaker
+property-testing library than `hypothesis`, which matters because the invariant
+is the thing being tested — mitigated by testing it at two levels (algebraic in
+`tests/property/tier.test.ts`, repository-level in `resolver.test.ts`).
+
+**Reversal condition.** A requirement for the renderer to *execute* rather than
+read evals — a `preview eval` command, a grader runtime, any scoring. That would
+pull the eval harness inside the trust boundary, which the technical design §12
+says means the design should be **closed rather than amended**. It would be a
+different product, and Python would be correct for it.
+
+---
+
 ## Open decisions
 
 Not yet decided. Listed so they are not mistaken for settled.
