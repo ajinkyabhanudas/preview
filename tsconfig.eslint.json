@@ -1,0 +1,12 @@
+{
+  // Type-aware linting needs every file in a project. tsconfig.json covers
+  // src/ only, because tests must not end up in the published dist/ build.
+  // This config exists purely so eslint can see tests and scripts.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "rootDir": "."
+  },
+  "include": ["src/**/*.ts", "tests/**/*.ts", "eslint.config.js"],
+  "exclude": ["node_modules", "dist", "tests/fixtures"]
+}

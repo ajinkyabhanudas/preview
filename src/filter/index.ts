@@ -45,9 +45,13 @@ export function scanVisibility(content: string): Visibility {
 
   for (const line of block.split('\n')) {
     const match = /^\s*visibility\s*:\s*(.+?)\s*$/.exec(line);
-    if (!match?.[1]) continue;
+    const captured = match?.[1];
+    // Explicit rather than truthiness: an empty capture means the author wrote
+    // `visibility:` with no value, which is a malformed declaration and must
+    // fall through to the restrictive default — not be skipped as "not found".
+    if (captured === undefined || captured.length === 0) continue;
 
-    let value = match[1];
+    let value = captured;
     // Strip a trailing comment, then surrounding quotes.
     const hash = value.indexOf('#');
     if (hash !== -1) value = value.slice(0, hash).trim();
