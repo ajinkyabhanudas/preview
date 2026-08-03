@@ -1,0 +1,309 @@
+# Decisions
+
+Architecture and product decisions for Preview, with the rejected options and
+the accepted cost recorded.
+
+This file is S6 evidence under the standard this repository specifies
+(`spec/standard-v0.1.md` §3.1). It is written to the same bar it asks of
+anyone else: every entry names what was rejected and what the choice costs.
+An entry that records only the choice is not a decision record, it is an
+announcement.
+
+**Format.** Each entry: context, the options considered, the decision, the
+accepted cost, and a reversal condition. The reversal condition is the field
+most often skipped and the most useful one — it converts a decision into
+something falsifiable.
+
+**Status key.** `ACTIVE` — in force. `SUPERSEDED` — replaced, with a pointer.
+`REVISIT` — in force but with a named trigger to re-open.
+
+---
+
+## D1 — The renderer is a pure, deterministic function
+
+**Status:** ACTIVE · 2026-07 · Inherited from the technical design (ADR-001)
+
+**Context.** The renderer reads a repository and produces a static site. It could
+read the clock, fetch avatars, call an API for summaries, or run as a server.
+
+**Options considered.**
+
+1. A conventional static site generator that reads the clock and the network.
+2. A server-side application.
+3. A pure function with an injected clock, no network, no environment reads.
+
+**Decision.** Option 3.
+
+**Why not the others.** A conventional generator makes reproducible builds
+impossible, which forecloses golden-file testing and means a reviewer can never
+rebuild a site and confirm it matches. A server-side application introduces
+operational load — a database, uptime, someone to page — that a solo part-time
+author cannot carry and that the product does not need.
+
+**Accepted cost.** A slightly awkward clock injection. No build-time convenience
+features: no fetching a GitHub avatar, no pulling a live star count. The
+charting approach is constrained to libraries that emit SVG from data with no
+runtime dependency.
+
+**What it buys.** Reproducible builds. Cheap golden-file tests. And a hosting
+migration that is a deployment change rather than a rewrite — a pure function is
+the same function on a laptop or behind a queue.
+
+**Honest note.** The third benefit is the actual motivation. The other two are
+real, but a clock read would have been accepted if hosting were not a live
+possibility.
+
+**Reversal condition.** A requirement for server-side personalisation. That
+would break purity and reintroduce every operational concern this avoids, and
+the technical design should be closed rather than amended.
+
+---
+
+## D2 — Fail closed on tier ambiguity
+
+**Status:** ACTIVE · 2026-07 · Inherited (ADR-002)
+
+**Context.** An author declares `tier: E3` in front matter and the supporting
+artifacts are absent. The build must do something.
+
+**Options considered.**
+
+1. Fail the build on any mismatch.
+2. Render at the declared tier and warn.
+3. Render **down** to the supported tier and warn.
+
+**Decision.** Option 3.
+
+**Why not the others.** Option 1 punishes the optimistic author — the person who
+declared E3 intending to build the eval next week — for a drafting error, and
+pushes people away from the tool entirely. Option 2 is the product failing at the
+only thing it promises: it publishes a claim the evidence does not support.
+
+**Accepted cost.** An author can ignore warnings indefinitely. Accepted, because
+the *rendered output* is already honest — the warning is for the author's
+benefit, not the reader's protection.
+
+**Reversal condition.** Evidence that authors are systematically ignoring
+warnings *and* that this materially misleads readers. The second half matters:
+ignored warnings alone are not harmful under this design.
+
+---
+
+## D3 — Visibility filtering at ingest, not at render
+
+**Status:** ACTIVE · 2026-07 · Inherited (ADR-003)
+
+**Context.** Private artifacts must not reach the output bundle.
+
+**Options considered.**
+
+1. Filter at render — simpler, one traversal.
+2. Filter at ingest, before any parsing.
+
+**Decision.** Option 2.
+
+**Why not option 1.** It means private content exists in memory alongside output
+construction, and one bug puts it in the bundle. The output is static files on a
+public host; "hidden" in that context means "present in the HTML". This is not a
+hypothetical — hide-at-render is how most confidentiality leaks in static sites
+actually happen.
+
+**Accepted cost.** A slightly awkward two-pass structure.
+
+**Reversal condition.** None foreseen. This is a security boundary and should be
+treated as fixed.
+
+---
+
+## D4 — Hash-pin golden sets across baseline and results
+
+**Status:** ACTIVE · 2026-07 · Inherited (ADR-005)
+
+**Context.** The highest-value gaming vector available to an author is quietly
+editing the test set until the number improves.
+
+**Options considered.**
+
+1. Trust the author's version string (`golden set v2`).
+2. Require a content hash recorded in both baseline and results.
+
+**Decision.** Option 2.
+
+**Why not option 1.** A version string is a claim. A hash is a fact. An author
+can relabel a file; they cannot relabel its contents.
+
+**Accepted cost.** Authors must record a hash, which is friction. Mitigated by
+`preview hash` in the CLI — a rule that depends on someone computing a SHA by
+hand will be complied with badly.
+
+**What it does not do.** It does not prevent editing the set. It makes an edit
+between baseline and result *visible*, and caps the affected claim at E1.
+Detection rather than prevention is the correct ambition here.
+
+---
+
+## D5 — No model inference anywhere in the pipeline
+
+**Status:** ACTIVE · 2026-07 · Inherited (ADR-006) · **Permanent**
+
+**Context.** Writing a good summary is the hardest part of using this standard.
+A model could generate the front-door summary from the artifacts.
+
+**Options considered.**
+
+1. Model-generated summaries for the front door.
+2. Model-assisted drafting with human confirmation.
+3. No model inference at any stage.
+
+**Decision.** Option 3, permanently, in every version.
+
+**Why not the others.** Model-written summaries of someone's contribution inflate
+by default. The product's entire asset is that claims are capped by evidence, and
+this is the single feature most likely to poison a corpus of portfolios. Option 2
+does not survive contact with reality — confirmation becomes rubber-stamping when
+the draft is already written and plausible.
+
+**Accepted cost.** The hardest part of the standard stays hard. This is the one
+place where the most useful feature and the core principle point in opposite
+directions, and the principle wins.
+
+**Reversal condition.** None. This is a permanent exclusion, not a deferral, and
+`scripts/spec-drift-check.mjs` asserts the standard still says so.
+
+---
+
+## D6 — The standard governs the renderer
+
+**Status:** ACTIVE · 2026-08 · New in this repository
+
+**Context.** The product requirements left open whether the standard governs the
+renderer or whether the two may drift. A build cannot start without an answer.
+
+**Options considered.**
+
+1. The renderer's behaviour is authoritative; the standard describes it.
+2. They are peers, reconciled per release.
+3. The standard governs; where they disagree, the renderer is wrong.
+
+**Decision.** Option 3.
+
+**Why not the others.** Option 1 is the default decay path for every
+specification with one author and one implementation: the tool becomes the real
+spec and the document degrades into marketing. That is specifically fatal here,
+because the standard must be forkable and a second implementation must be
+constructible from the document alone (`spec/standard-v0.1.md` §12.2). Option 2
+sounds balanced and means nobody is responsible for the divergence.
+
+**Accepted cost.** Changing renderer behaviour requires a spec change first,
+which is slower. The renderer may not add a "sensible" validation the standard
+does not state, even when it would obviously help — such a check would become
+de-facto standard without review.
+
+**Reversal condition.** None expected. If a second implementation appears and the
+governance *process* proves unworkable, revisit the process (SQ-6), not the
+precedence rule.
+
+---
+
+## D7 — TypeScript with maximum strictness
+
+**Status:** ACTIVE · 2026-08 · New in this repository
+
+**Context.** The resolver reads untrusted YAML front matter and decides what
+tier a claim renders at.
+
+**Options considered.**
+
+1. Default `strict: true`.
+2. Strict plus `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes`.
+3. A runtime schema validator carrying the whole burden.
+
+**Decision.** Option 2, with runtime parsing at the boundary.
+
+**Why not the others.** Default strict still lets `record[key]` type as
+non-optional when it can be `undefined` at runtime — and a silently-undefined
+field in a tier check is precisely how a cap gets bypassed. Option 3 alone
+leaves the internal model unguarded after parsing.
+
+**Accepted cost.** More explicit undefined handling throughout. Noisier code in
+places where the author knows a key exists.
+
+**Reversal condition.** If the strictness produces defensive noise without
+catching real defects over a meaningful period, relax
+`exactOptionalPropertyTypes` first — but never `noUncheckedIndexedAccess` in the
+resolver.
+
+---
+
+## D8 — Property tests, not example tests, on the resolver
+
+**Status:** ACTIVE · 2026-08 · New in this repository
+
+**Context.** The capping rule is the entire product claim. It needs a test
+strategy proportional to that.
+
+**Options considered.**
+
+1. Example tests over hand-written cases.
+2. Property-based tests over generated input.
+3. Both, with properties as the gate.
+
+**Decision.** Option 3. `fast-check`, run as a separate CI job.
+
+**Why not option 1 alone.** An example test proves the cases someone thought of.
+The failure that matters is the case nobody thought of granting a tier that was
+never earned. Monotonicity in particular — adding an artifact never lowers an
+unrelated claim's tier — is essentially never found by example tests and would
+erode author trust faster than any visible bug.
+
+**Accepted cost.** Property tests are slower to write and their failures are
+harder to read than a named example.
+
+**Why a separate CI job.** When the invariant breaks, the failure must be legible
+as "the invariant broke", not as one red dot among two hundred unit tests.
+
+---
+
+## D9 — Spec drift sentinel in CI
+
+**Status:** ACTIVE · 2026-08 · New in this repository
+
+**Context.** The specifications carry named normative properties — MUSTs, quality
+bars, exit conditions — that the code and gates depend on. An edit can silently
+delete one and every test still passes, because tests assert on code, not on the
+document the code claims to implement.
+
+**Options considered.**
+
+1. Rely on review to catch removals.
+2. Assert presence of load-bearing text in CI.
+
+**Decision.** Option 2. `scripts/spec-drift-check.mjs`, 10 sentinels.
+
+**Why not option 1.** Single-author project. There is no second reviewer, and
+the removals that matter are the ones that look like tidying.
+
+**Accepted cost.** The sentinel is crude — it checks for the presence of text,
+not for meaning, and it breaks on legitimate rewording. That is deliberate: a
+sentinel failing on a reword forces the author to confirm the property survived
+the rewrite, which is exactly the moment worth interrupting.
+
+**Validated on first run.** The sentinel caught a genuine mismatch immediately —
+a needle that did not match the standard's actual wording. The check works.
+
+**Reversal condition.** If sentinel maintenance exceeds its value, replace with
+a structural check (headings and MUST-count per section) rather than deleting it.
+
+---
+
+## Open decisions
+
+Not yet decided. Listed so they are not mistaken for settled.
+
+| ID | Question | Blocked on | Needed by |
+|---|---|---|---|
+| OD-1 | Charting approach — must satisfy D1 purity with no runtime dependency | Library evaluation | Before B5 |
+| OD-2 | Unlisted slug stability across machines — local config vs. content-derived | — | Before B6 |
+| OD-3 | Licence for artifacts archived into the bundle when the source repo differs | — | Before public release |
+| OD-4 | Whether the diagnostics report should be publishable | Practitioner review | Week 8 |
+| OD-5 | Schema migration path across major standard versions | — | Before 1.0.0 |

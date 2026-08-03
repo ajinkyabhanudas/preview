@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  check:
+    name: Lint, typecheck, test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run test
+
+  invariant:
+    name: Invariant gate (property tests)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      # spec/build-v1.md §5.1 — the three properties. This job is separated
+      # from `check` on purpose: when it fails, the failure must be legible as
+      # "the invariant broke", not as one red dot among two hundred unit tests.
+      - run: npm run test:property
+
+  determinism:
+    name: Determinism gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      # spec/build-v1.md §4 — same inputs must produce byte-identical output.
+      - run: node scripts/determinism-check.mjs
+
+  leak:
+    name: Leak gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      # spec/build-v1.md §5.3 — runs against the BUILT BUNDLE, not source.
+      # The failure mode is content leaking through transformation (an alt
+      # attribute, a chart label), not content in a file marked private.
+      - run: node scripts/leak-check.mjs
+
+  spec-drift:
+    name: Spec drift sentinel
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      # Asserts the named normative properties still exist in spec/. Catches an
+      # edit that silently removes a quality bar or an exit condition.
+      - run: node scripts/spec-drift-check.mjs

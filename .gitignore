@@ -1,0 +1,25 @@
+node_modules/
+dist/
+coverage/
+.vitest/
+*.tsbuildinfo
+
+.DS_Store
+.idea/
+.vscode/
+
+# Local build output
+site/
+.preview-cache/
+
+# Unlisted-artifact slugs are stable local state, never shared (spec/build-v1.md §3.2)
+.preview-slugs.json
+
+# The denylist is itself a disclosure — a committed list of things you cannot
+# say names the things you cannot say. See spec/build-v1.md §5.3.
+denylist.txt
+preview.config.local.json
+
+.env
+.env.*
+!.env.example
