@@ -1,17 +1,17 @@
 /**
  * The pipeline — spec/build-v1.md §3.
  *
- *   ingest -> filter -> validate -> resolve
+ *   ingest -> filter -> validate -> resolve -> render -> emit
  *
- * Render and emit are not built yet (B5, B6), so this stops at resolution and
- * returns the resolved claims plus diagnostics. That is deliberate: B4 was the
- * hard gate, and nothing renders until the invariant is proven.
+ * `analyse` stops at resolution and returns claims plus diagnostics; `build`
+ * runs the whole pipeline and writes a site.
  *
  * Purity (ADR-001): no network, no ambient clock, no environment reads. The
  * clock is injected. Ingest is the only stage touching the filesystem, and it
  * runs once at the entry point.
  */
 
+import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { ingest } from './ingest/index.js';
 import { filterByVisibility } from './filter/index.js';
@@ -19,8 +19,23 @@ import { parseAll } from './validate/frontmatter.js';
 import { buildSupportContext, validateAll } from './validate/schema.js';
 import { resolveAll } from './resolve/index.js';
 import { renderDocument, type FrontDoor } from './render/document.js';
+import { missingElements, parseFrontDoor } from './render/front-door.js';
 import { emit, renderDiagnostics, type EmitResult } from './emit/index.js';
 import type { Diagnostic, ResolvedClaim } from './model.js';
+
+/**
+ * Read the authored front-door notes.
+ *
+ * Absence is not an error: a repository with no notes yet builds a site whose
+ * front door is visibly incomplete, which is more useful than a build failure.
+ */
+async function readNotes(repoRoot: string): Promise<string> {
+  try {
+    return await readFile(join(repoRoot, 'docs/product/product-notes.md'), 'utf8');
+  } catch {
+    return '';
+  }
+}
 
 export interface BuildOptions {
   /**
@@ -84,15 +99,17 @@ export async function build(
   repoRoot: string,
   outputRoot: string,
   options: BuildOptions & { readonly front?: FrontDoor },
-): Promise<{ readonly report: BuildReport; readonly emitted: EmitResult }> {
+): Promise<{
+  readonly report: BuildReport;
+  readonly emitted: EmitResult;
+  readonly frontDoorGaps: readonly string[];
+}> {
   const report = await analyse(repoRoot, options);
 
-  const front: FrontDoor = options.front ?? {
-    title: 'Portfolio',
-    problem: '[MEASURE: state the problem as a cost borne by someone.]',
-    decision: '[MEASURE: name the hardest decision and what it gave up.]',
-    gotWrong: '[MEASURE: state what you got wrong. This is required.]',
-  };
+  // The front door is authored prose, read from the repository so FR-6 holds.
+  // An explicit `front` overrides it, which is what the tests use.
+  const front: FrontDoor =
+    options.front ?? parseFrontDoor(await readNotes(repoRoot), 'Portfolio');
 
   const html = renderDocument(front, report.claims, report.builtAt);
   const diagnostics = renderDiagnostics(report.claims, report.diagnostics, report.builtAt);
@@ -113,10 +130,11 @@ export async function build(
     archive,
   );
 
-  return { report, emitted };
+  return { report, emitted, frontDoorGaps: missingElements(front) };
 }
 
 export { TIERS, isAtLeast, isTier, minTier, parseTier, type Tier } from './tier.js';
 export * from './model.js';
 export { renderDocument, type FrontDoor } from './render/document.js';
 export { renderResultFigure, type Series } from './render/chart.js';
+export { parseFrontDoor, missingElements } from './render/front-door.js';

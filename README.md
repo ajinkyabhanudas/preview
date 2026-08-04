@@ -134,6 +134,30 @@ make help        # all targets
 
 Requires Node 20+.
 
+## Using it on a repository
+
+```bash
+npx preview init --docs ../product-docs   # propose drafts from existing evidence
+npx preview check                         # validate, write nothing
+npx preview build                         # generate the site into site/
+```
+
+`init` never overwrites and never invents a value — anything it cannot find in a
+file is left as a visible `[MEASURE: ...]` placeholder.
+
+The four-minute front door is authored prose, so it cannot be extracted. Write it
+in `docs/product/product-notes.md` under three headings:
+
+```markdown
+## The problem
+## The hardest decision
+## What I got wrong
+```
+
+`build` reports which of the three are missing. They render as visible
+placeholders until you write them — a front door with three of four elements
+should look incomplete, because it is.
+
 ## The gates
 
 Five, and they are separated on purpose so a failure is legible.
