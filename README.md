@@ -1,7 +1,19 @@
-# Preview
+<p align="center">
+  <img src="docs/banner.svg" alt="Preview — evidence for product work that has no market signal. The evidence ladder from E0 to E5, with E3 highlighted as reachable without users." width="880">
+</p>
 
-**A standard for evidencing product work that has no market signal, and a
-renderer that turns a repository following it into a site a reviewer can read.**
+<p align="center">
+  <a href="https://github.com/ajinkyabhanudas/preview/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/ajinkyabhanudas/preview/actions/workflows/ci.yml/badge.svg?branch=main"></a>
+  <img alt="Standard v0.1.0 draft" src="https://img.shields.io/badge/standard-v0.1.0%20draft-1f6feb">
+  <img alt="Status: pre-review" src="https://img.shields.io/badge/status-not%20yet%20reviewed-9ca3af">
+  <img alt="Renderer: MIT" src="https://img.shields.io/badge/renderer-MIT-3fb950">
+  <img alt="Standard licence unsettled" src="https://img.shields.io/badge/standard%20licence-unsettled-d29922">
+</p>
+
+<p align="center">
+  <strong>A standard for evidencing product work that has no market signal, and a
+  renderer that turns a repository following it into a site a reviewer can read.</strong>
+</p>
 
 ---
 
@@ -122,6 +134,7 @@ Five, and they are separated on purpose so a failure is legible.
 | `test-determinism` | Two builds of one fixture are byte-identical | build §4 |
 | `test-leak` | No denylisted term in the **built bundle** | build §5.3 |
 | `spec-drift` | Named normative properties still exist in `spec/` | DECISIONS D9 |
+| `test-links` | Every doc link and anchor resolves | — |
 
 The property gate runs as its own CI job. When the invariant breaks, the failure
 must read as "the invariant broke", not as one red dot among two hundred unit
@@ -167,5 +180,9 @@ product failing at the only thing it promises.
 
 ## Licence
 
-MIT for the renderer. The standard's licence is not yet settled — CC-BY-4.0 is
-proposed. See `spec/standard-v0.1.md` §0.
+MIT for the renderer.
+
+The standard's licence is **not yet settled** — CC-BY-4.0 is proposed but not
+adopted. Until it is, treat the standard as all-rights-reserved and open an
+issue if you want to reuse it. Tracked as SQ-7 in
+[the standard's open questions](spec/standard-v0.1.md#13-open-questions-in-this-standard).

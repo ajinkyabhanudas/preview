@@ -8,7 +8,7 @@
 | Status | Draft. Normative language is binding on conforming implementations, but the standard has not yet survived adversarial review by hiring practitioners. Expect breaking changes before 1.0.0. |
 | Date | July 2026 |
 | Licence | `[OPEN: CC-BY-4.0 proposed for the standard, MIT for the reference renderer. Owner: author. Needed by: week 9. Tracked as Q-6.]` |
-| Companion document (in repo) | `SPEC-preview-build-v1.md` — the reference implementation's build specification |
+| Companion document (in repo) | [`build-v1.md`](build-v1.md) — the reference implementation's build specification |
 | Note on independence | This standard is written to be implementable from this document alone (§12.2). It references no private document, and a forker needs nothing beyond what is in this repository. |
 
 ---

@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 200" width="880" height="200" role="img" aria-labelledby="t d">
+  <title id="t">Preview — a standard for evidencing work with no market signal</title>
+  <desc id="d">The evidence ladder E0 to E5. Tiers E0 through E3 are reachable with zero users; E4 and E5 require a market. A claim renders at a tier no higher than its artifacts support.</desc>
+
+  <style>
+    /* Theme-aware: GitHub serves light or dark, and a banner that only works
+       in one is a banner that looks broken half the time. */
+    .bg    { fill: #ffffff; }
+    .rule  { stroke: #d8dae0; }
+    .name  { fill: #14161a; }
+    .sub   { fill: #5c6370; }
+    .rung  { fill: #eef0f4; }
+    .rlbl  { fill: #6b7280; }
+    .free  { fill: #1f6feb; }
+    .paid  { fill: #cbd1da; }
+    .flbl  { fill: #ffffff; }
+    .note  { fill: #6b7280; }
+    .accent{ fill: #1f6feb; }
+
+    @media (prefers-color-scheme: dark) {
+      .bg    { fill: #0d1117; }
+      .rule  { stroke: #262b33; }
+      .name  { fill: #e9ebf0; }
+      .sub   { fill: #8b949e; }
+      .rung  { fill: #171b22; }
+      .rlbl  { fill: #7d8590; }
+      .free  { fill: #4c8dff; }
+      .paid  { fill: #2b313a; }
+      .flbl  { fill: #0d1117; }
+      .note  { fill: #7d8590; }
+      .accent{ fill: #4c8dff; }
+    }
+  </style>
+
+  <rect class="bg" width="880" height="200"/>
+
+  <!-- Wordmark. Weight carries the hierarchy, not size alone. -->
+  <text class="name" x="48" y="58" font-family="ui-sans-serif,-apple-system,Segoe UI,Helvetica,Arial,sans-serif"
+        font-size="30" font-weight="640" letter-spacing="-0.6">Preview</text>
+  <text class="sub" x="48" y="84" font-family="ui-sans-serif,-apple-system,Segoe UI,Helvetica,Arial,sans-serif"
+        font-size="14.5" letter-spacing="-0.1">Evidence for product work that has no market signal</text>
+
+  <line class="rule" x1="48" y1="104" x2="832" y2="104" stroke-width="1"/>
+
+  <!-- The ladder. Bars grow with tier; the four reachable without users are
+       filled, the two that need a market are not. That contrast IS the idea. -->
+  <g font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5">
+    <g transform="translate(48,126)">
+      <rect class="rung" x="0" y="0" width="118" height="34" rx="5"/>
+      <rect class="free" x="0" y="0" width="118" height="34" rx="5" opacity="0.10"/>
+      <rect class="free" x="0" y="0" width="4" height="34" rx="2"/>
+      <text class="rlbl" x="14" y="15" font-weight="620">E0 · E1</text>
+      <text class="rlbl" x="14" y="28" font-size="10">assertion, anecdote</text>
+    </g>
+
+    <g transform="translate(178,126)">
+      <rect class="rung" x="0" y="0" width="118" height="34" rx="5"/>
+      <rect class="free" x="0" y="0" width="118" height="34" rx="5" opacity="0.14"/>
+      <rect class="free" x="0" y="0" width="4" height="34" rx="2"/>
+      <text class="rlbl" x="14" y="15" font-weight="620">E2</text>
+      <text class="rlbl" x="14" y="28" font-size="10">coded qualitative</text>
+    </g>
+
+    <!-- E3 is the product's whole argument, so it gets the solid treatment. -->
+    <g transform="translate(308,126)">
+      <rect class="free" x="0" y="0" width="150" height="34" rx="5"/>
+      <text class="flbl" x="14" y="15" font-weight="700">E3</text>
+      <text class="flbl" x="14" y="28" font-size="10" opacity="0.92">frozen eval · no users</text>
+    </g>
+
+    <g transform="translate(470,126)">
+      <rect class="paid" x="0" y="0" width="112" height="34" rx="5" opacity="0.5"/>
+      <text class="rlbl" x="14" y="15" font-weight="620">E4</text>
+      <text class="rlbl" x="14" y="28" font-size="10">needs a market</text>
+    </g>
+
+    <g transform="translate(594,126)">
+      <rect class="paid" x="0" y="0" width="112" height="34" rx="5" opacity="0.5"/>
+      <text class="rlbl" x="14" y="15" font-weight="620">E5</text>
+      <text class="rlbl" x="14" y="28" font-size="10">needs a market</text>
+    </g>
+  </g>
+
+  <text class="note" x="48" y="182" font-family="ui-sans-serif,-apple-system,Segoe UI,Helvetica,Arial,sans-serif"
+        font-size="12.5">A claim renders at a tier no higher than its artifacts support<tspan class="accent" font-weight="600"> — E3 needs no users, and is harder to fake than E4.</tspan></text>
+</svg>
