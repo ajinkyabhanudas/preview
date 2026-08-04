@@ -352,6 +352,79 @@ different product, and Python would be correct for it.
 
 ---
 
+## D11 — A local authoring app, not a hosted platform
+
+**Status:** ACTIVE · 2026-08
+
+**Context.** The standard asks an author to produce up to eight artifacts with
+correct front matter. Hand-writing those is the dominant cost of adopting it, and
+that cost is what H-1 tests: if three external builders will not finish, the
+barrier was never presentation, it was effort.
+
+The renderer removing that cost is the product. But FR-6 states that nothing is
+authored inside the renderer — the repository is canonical and the site is a
+projection of it — and the technical design lists "authoring moving into the
+tool" as one of three changes that would **void the design** rather than extend
+it.
+
+Those two requirements appear to conflict. They do not, and the resolution is
+what this entry records.
+
+**Options considered.**
+
+1. **Hand-authoring only.** The author writes every artifact. Preserves FR-6
+   perfectly and almost certainly fails H-1.
+2. **Hosted platform.** Accounts, a database, other people's portfolios stored
+   on a server.
+3. **Local authoring app.** A CLI and a local UI that read the repository,
+   extract what already exists, and write markdown files back into the author's
+   own repository. No server, no accounts, no database, no network.
+
+**Decision.** Option 3.
+
+**Why not option 2.** Explicitly out of scope in the product requirements
+(hosted multi-tenant platform, accounts, auth, database) and gated on H-2 — five
+unsolicited hosting requests by week 12. That gate exists precisely so hosting is
+decided by evidence rather than enthusiasm, and the operational capacity for it
+does not exist: there is nobody to page, and nothing should be able to page.
+
+**Why this does not break FR-6.** The distinction is between *where artifacts
+live* and *where they are typed*. FR-6 requires the repository to be canonical —
+that the site is a projection of the repository, so the two cannot drift. A local
+app that writes `docs/product/*.md` into the author's repository, which the
+author then reviews and commits, satisfies that completely. The files are in the
+repository. The site is still a projection of them. Nothing is stored anywhere
+else, and there is no second source of truth to drift from.
+
+What FR-6 forbids is a tool that *holds* the content — a CMS, a database, a
+hosted editor whose state is authoritative and whose export is a copy. This is
+not that.
+
+**The line against ADR-006.** Extraction may **copy and structure text that
+already exists** in the repository: a decision heading, a benchmark figure, a
+test-case count. It may never **write prose about contribution or value**. A
+generated artifact is a form filled from files, never a summary composed about
+the author. Every extracted field carries its source path so the author can see
+exactly where each value came from, and any field the tool could not fill is left
+as a visible `[MEASURE: ...]` placeholder rather than guessed.
+
+**Accepted cost.** A UI surface in a project whose technical design says the
+build should feel underbuilt. Mitigated by keeping it a static local page with no
+framework and no build step of its own — it reads a JSON extraction and writes
+files, and it is excluded from the rendered output bundle entirely.
+
+The second cost is real: extraction quality determines whether this helps. A
+generated artifact that is wrong is worse than a blank one, because the author
+may accept it without reading. This is why nothing is inferred — a field is
+extracted from a specific file or left visibly empty.
+
+**Reversal condition.** Evidence that authors accept generated drafts without
+reading them, which would make extraction a fabrication vector rather than a
+convenience. The test is whether committed artifacts still contain unedited
+`[MEASURE: ...]` placeholders in published portfolios.
+
+---
+
 ## Open decisions
 
 Not yet decided. Listed so they are not mistaken for settled.
