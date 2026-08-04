@@ -12,11 +12,14 @@
  * runs once at the entry point.
  */
 
+import { join } from 'node:path';
 import { ingest } from './ingest/index.js';
 import { filterByVisibility } from './filter/index.js';
 import { parseAll } from './validate/frontmatter.js';
 import { buildSupportContext, validateAll } from './validate/schema.js';
 import { resolveAll } from './resolve/index.js';
+import { renderDocument, type FrontDoor } from './render/document.js';
+import { emit, renderDiagnostics, type EmitResult } from './emit/index.js';
 import type { Diagnostic, ResolvedClaim } from './model.js';
 
 export interface BuildOptions {
@@ -70,5 +73,50 @@ export async function analyse(repoRoot: string, options: BuildOptions): Promise<
   };
 }
 
+/**
+ * Build a site from a repository.
+ *
+ * The full pipeline: ingest → filter → validate → resolve → render → emit.
+ * Pure apart from the filesystem reads at ingest and the writes at emit, and
+ * deterministic given the same repository and clock (D1).
+ */
+export async function build(
+  repoRoot: string,
+  outputRoot: string,
+  options: BuildOptions & { readonly front?: FrontDoor },
+): Promise<{ readonly report: BuildReport; readonly emitted: EmitResult }> {
+  const report = await analyse(repoRoot, options);
+
+  const front: FrontDoor = options.front ?? {
+    title: 'Portfolio',
+    problem: '[MEASURE: state the problem as a cost borne by someone.]',
+    decision: '[MEASURE: name the hardest decision and what it gave up.]',
+    gotWrong: '[MEASURE: state what you got wrong. This is required.]',
+  };
+
+  const html = renderDocument(front, report.claims, report.builtAt);
+  const diagnostics = renderDiagnostics(report.claims, report.diagnostics, report.builtAt);
+
+  // Referenced artifacts are copied in so the site survives the source
+  // repository going private (ADR-004, edge case E-8).
+  const archive = report.claims.map((claim) => ({
+    from: join(repoRoot, claim.path),
+    to: claim.path,
+  }));
+
+  const emitted = await emit(
+    outputRoot,
+    [
+      { path: 'index.html', content: html },
+      { path: 'diagnostics.md', content: diagnostics },
+    ],
+    archive,
+  );
+
+  return { report, emitted };
+}
+
 export { TIERS, isAtLeast, isTier, minTier, parseTier, type Tier } from './tier.js';
 export * from './model.js';
+export { renderDocument, type FrontDoor } from './render/document.js';
+export { renderResultFigure, type Series } from './render/chart.js';

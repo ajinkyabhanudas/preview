@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/banner.svg" alt="Preview — evidence for product work that has no market signal. The evidence ladder from E0 to E5, with E3 highlighted as reachable without users." width="880">
+  <img src="docs/banner.svg" alt="Preview — evidence for product work that has no market. The evidence ladder from E0 to E5: E0 through E3 are solid and reachable without users, E4 and E5 are dashed outlines requiring a market." width="1200">
 </p>
 
 <p align="center">

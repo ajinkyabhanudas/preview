@@ -1,86 +1,99 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 200" width="880" height="200" role="img" aria-labelledby="t d">
-  <title id="t">Preview — a standard for evidencing work with no market signal</title>
-  <desc id="d">The evidence ladder E0 to E5. Tiers E0 through E3 are reachable with zero users; E4 and E5 require a market. A claim renders at a tier no higher than its artifacts support.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400" role="img" aria-labelledby="bt bd">
+  <title id="bt">Preview</title>
+  <desc id="bd">Evidence for product work that has no market. A rising ladder of six tiers, E0 to E5. The first four are reachable without users; E3 is the highest of these and is filled solid. E4 and E5 require a market and are drawn as empty outlines.</desc>
+
+  <defs>
+    <linearGradient id="e3fill" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" class="g0"/>
+      <stop offset="1" class="g1"/>
+    </linearGradient>
+  </defs>
 
   <style>
-    /* Theme-aware: GitHub serves light or dark, and a banner that only works
-       in one is a banner that looks broken half the time. */
-    .bg    { fill: #ffffff; }
-    .rule  { stroke: #d8dae0; }
-    .name  { fill: #14161a; }
-    .sub   { fill: #5c6370; }
-    .rung  { fill: #eef0f4; }
-    .rlbl  { fill: #6b7280; }
-    .free  { fill: #1f6feb; }
-    .paid  { fill: #cbd1da; }
-    .flbl  { fill: #ffffff; }
-    .note  { fill: #6b7280; }
-    .accent{ fill: #1f6feb; }
+    .bg    { fill: #fbfbfc; }
+    .name  { fill: #0d1117; }
+    .sub   { fill: #4a5260; }
+    .step  { fill: #dfe3e9; }
+    .stepl { fill: #6b7280; }
+    .g0    { stop-color: #1f6feb; }
+    .g1    { stop-color: #4c8dff; }
+    .e3t   { fill: #ffffff; }
+    .locked{ fill: none; stroke: #cdd3dc; stroke-width: 2; stroke-dasharray: 5 5; }
+    .lockl { fill: #9aa3b0; }
+    .rule  { stroke: #e6e9ee; }
+    .kicker{ fill: #1f6feb; }
+    .foot  { fill: #4a5260; }
 
+    /* GitHub serves light or dark. A banner that works in only one of them
+       looks broken half the time. */
     @media (prefers-color-scheme: dark) {
-      .bg    { fill: #0d1117; }
-      .rule  { stroke: #262b33; }
-      .name  { fill: #e9ebf0; }
-      .sub   { fill: #8b949e; }
-      .rung  { fill: #171b22; }
-      .rlbl  { fill: #7d8590; }
-      .free  { fill: #4c8dff; }
-      .paid  { fill: #2b313a; }
-      .flbl  { fill: #0d1117; }
-      .note  { fill: #7d8590; }
-      .accent{ fill: #4c8dff; }
+      .bg    { fill: #0b0d11; }
+      .name  { fill: #f0f2f6; }
+      .sub   { fill: #9aa3b0; }
+      .step  { fill: #1c222b; }
+      .stepl { fill: #7d8590; }
+      .g0    { stop-color: #2f6fd0; }
+      .g1    { stop-color: #6ba5ff; }
+      .e3t   { fill: #06090d; }
+      /* fill must be restated, not inherited: an override that only changes
+         stroke leaves these solid in some renderers, which inverts the whole
+         point — the unreachable tiers would read as the most emphasised. */
+      .locked{ fill: none; stroke: #39424f; stroke-width: 2; stroke-dasharray: 5 5; }
+      .lockl { fill: #5c6470; }
+      .rule  { stroke: #1c222b; }
+      .kicker{ fill: #6ba5ff; }
+      .foot  { fill: #9aa3b0; }
     }
   </style>
 
-  <rect class="bg" width="880" height="200"/>
+  <rect class="bg" width="1200" height="400"/>
 
-  <!-- Wordmark. Weight carries the hierarchy, not size alone. -->
-  <text class="name" x="48" y="58" font-family="ui-sans-serif,-apple-system,Segoe UI,Helvetica,Arial,sans-serif"
-        font-size="30" font-weight="640" letter-spacing="-0.6">Preview</text>
-  <text class="sub" x="48" y="84" font-family="ui-sans-serif,-apple-system,Segoe UI,Helvetica,Arial,sans-serif"
-        font-size="14.5" letter-spacing="-0.1">Evidence for product work that has no market signal</text>
+  <!-- Wordmark occupies the left half; the ladder takes the right. -->
+  <text class="kicker" x="72" y="96" font-family="ui-monospace,SFMono-Regular,Menlo,monospace"
+        font-size="13" font-weight="bold" letter-spacing="2.4">THE EVIDENCE LADDER</text>
 
-  <line class="rule" x1="48" y1="104" x2="832" y2="104" stroke-width="1"/>
+  <text class="name" x="70" y="176" font-family="ui-sans-serif,-apple-system,Segoe UI,Helvetica,Arial,sans-serif"
+        font-size="76" font-weight="bold" letter-spacing="-2.6">Preview</text>
 
-  <!-- The ladder. Bars grow with tier; the four reachable without users are
-       filled, the two that need a market are not. That contrast IS the idea. -->
-  <g font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11.5">
-    <g transform="translate(48,126)">
-      <rect class="rung" x="0" y="0" width="118" height="34" rx="5"/>
-      <rect class="free" x="0" y="0" width="118" height="34" rx="5" opacity="0.10"/>
-      <rect class="free" x="0" y="0" width="4" height="34" rx="2"/>
-      <text class="rlbl" x="14" y="15" font-weight="620">E0 · E1</text>
-      <text class="rlbl" x="14" y="28" font-size="10">assertion, anecdote</text>
-    </g>
+  <text class="sub" x="72" y="222" font-family="ui-sans-serif,-apple-system,Segoe UI,Helvetica,Arial,sans-serif"
+        font-size="21" letter-spacing="-0.3">Evidence for product work that has no market.</text>
 
-    <g transform="translate(178,126)">
-      <rect class="rung" x="0" y="0" width="118" height="34" rx="5"/>
-      <rect class="free" x="0" y="0" width="118" height="34" rx="5" opacity="0.14"/>
-      <rect class="free" x="0" y="0" width="4" height="34" rx="2"/>
-      <text class="rlbl" x="14" y="15" font-weight="620">E2</text>
-      <text class="rlbl" x="14" y="28" font-size="10">coded qualitative</text>
-    </g>
+  <line class="rule" x1="72" y1="266" x2="470" y2="266" stroke-width="1"/>
 
-    <!-- E3 is the product's whole argument, so it gets the solid treatment. -->
-    <g transform="translate(308,126)">
-      <rect class="free" x="0" y="0" width="150" height="34" rx="5"/>
-      <text class="flbl" x="14" y="15" font-weight="700">E3</text>
-      <text class="flbl" x="14" y="28" font-size="10" opacity="0.92">frozen eval · no users</text>
-    </g>
+  <text class="foot" x="72" y="300" font-family="ui-sans-serif,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="17">
+    <tspan font-weight="bold">E3 needs no users</tspan><tspan> — and is harder</tspan>
+  </text>
+  <text class="foot" x="72" y="326" font-family="ui-sans-serif,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="17">to fake than the tiers above it.</text>
 
-    <g transform="translate(470,126)">
-      <rect class="paid" x="0" y="0" width="112" height="34" rx="5" opacity="0.5"/>
-      <text class="rlbl" x="14" y="15" font-weight="620">E4</text>
-      <text class="rlbl" x="14" y="28" font-size="10">needs a market</text>
-    </g>
+  <!-- The ladder. Height encodes tier, so the shape reads before any label
+       does: it climbs, then stops being solid. The empty outlines where E4 and
+       E5 should be filled are the argument, not decoration around it. -->
+  <g font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="15" font-weight="bold">
+    <rect class="step" x="560" y="300" width="82" height="40" rx="4"/>
+    <text class="stepl" x="601" y="326" text-anchor="middle">E0</text>
 
-    <g transform="translate(594,126)">
-      <rect class="paid" x="0" y="0" width="112" height="34" rx="5" opacity="0.5"/>
-      <text class="rlbl" x="14" y="15" font-weight="620">E5</text>
-      <text class="rlbl" x="14" y="28" font-size="10">needs a market</text>
-    </g>
+    <rect class="step" x="654" y="266" width="82" height="74" rx="4"/>
+    <text class="stepl" x="695" y="326" text-anchor="middle">E1</text>
+
+    <rect class="step" x="748" y="220" width="82" height="120" rx="4"/>
+    <text class="stepl" x="789" y="326" text-anchor="middle">E2</text>
+
+    <!-- E3 — the peak of what is reachable without a market. The only step
+         that is saturated and the only one carrying a descriptor. -->
+    <rect x="842" y="140" width="82" height="200" rx="4" fill="url(#e3fill)"/>
+    <text class="e3t" x="883" y="326" text-anchor="middle" font-weight="bold">E3</text>
+    <text class="e3t" x="883" y="172" text-anchor="middle" font-size="11" font-weight="bold" letter-spacing="0.6" opacity="0.95">FROZEN</text>
+    <text class="e3t" x="883" y="188" text-anchor="middle" font-size="11" font-weight="bold" letter-spacing="0.6" opacity="0.95">EVAL</text>
+
+    <rect class="locked" fill="none" x="936" y="104" width="82" height="236" rx="4"/>
+    <text class="lockl" x="977" y="326" text-anchor="middle">E4</text>
+
+    <rect class="locked" fill="none" x="1030" y="68" width="82" height="272" rx="4"/>
+    <text class="lockl" x="1071" y="326" text-anchor="middle">E5</text>
   </g>
 
-  <text class="note" x="48" y="182" font-family="ui-sans-serif,-apple-system,Segoe UI,Helvetica,Arial,sans-serif"
-        font-size="12.5">A claim renders at a tier no higher than its artifacts support<tspan class="accent" font-weight="600"> — E3 needs no users, and is harder to fake than E4.</tspan></text>
+  <line class="rule" x1="560" y1="341" x2="1112" y2="341" stroke-width="1.5"/>
+
+  <text class="stepl" x="560" y="368" font-family="ui-sans-serif,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="13">no users needed</text>
+  <text class="lockl" x="1112" y="368" text-anchor="end" font-family="ui-sans-serif,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" font-size="13">needs a market</text>
 </svg>
