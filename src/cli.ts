@@ -122,6 +122,20 @@ async function cmdBuild(repoRoot: string, out: string, at: string | undefined): 
     console.log('They render as visible placeholders until you do.');
   }
 
+  // Capped claims are the actionable ones: each names a specific artifact that
+  // would raise it. Showing them at build time is the difference between an
+  // author knowing what to do next and concluding the tool does not see their
+  // evidence.
+  const capped = report.diagnostics.filter((d) => d.code === 'tier-overclaim');
+  if (capped.length > 0) {
+    console.log('');
+    console.log(`${capped.length} claim(s) rendered below their declaration:`);
+    for (const d of capped) {
+      console.log(`  ${d.path}`);
+      console.log(`    ${d.message}`);
+    }
+  }
+
   const errors = report.diagnostics.filter((d) => d.severity === 'error');
   if (errors.length > 0) {
     console.log('');
