@@ -101,3 +101,17 @@ describe('missing repository', () => {
     expect(report.claims).toEqual([]);
   });
 });
+
+describe('declared evidence paths', () => {
+  /**
+   * A declared root can sit inside a default root (`docs/product/discovery`
+   * under `docs/product`), which walks the same tree twice. Without
+   * deduplication every file — and therefore every claim — appears twice.
+   * Found by running against a real repository.
+   */
+  it('does not duplicate claims when roots overlap', async () => {
+    const report = await run('honest-complete');
+    const paths = report.claims.map((c) => c.path);
+    expect(new Set(paths).size).toBe(paths.length);
+  });
+});
