@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help install lint typecheck test test-property test-leak test-determinism test-links check build clean gates
+.PHONY: help install lint typecheck test test-property test-leak test-determinism test-links test-status check build clean gates
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -29,9 +29,12 @@ test-determinism: ## Assert two builds of the same fixture are byte-identical (s
 test-links: ## Assert every doc link and anchor resolves
 	node scripts/link-check.mjs
 
+test-status: ## Assert README/LIMITATIONS status claims match the code
+	node scripts/status-check.mjs
+
 check: lint typecheck test ## Lint + typecheck + test. Run before every commit.
 
-gates: check test-property test-leak test-determinism test-links ## Every release gate. Must pass before merge.
+gates: check test-property test-leak test-determinism test-links test-status ## Every release gate. Must pass before merge.
 
 build: ## Compile TypeScript to dist/
 	npm run build

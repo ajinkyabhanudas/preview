@@ -15,7 +15,7 @@
  */
 
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, rmSync, statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, relative } from 'node:path';
 
@@ -62,8 +62,18 @@ try {
 // bug the injected clock exists to prevent.
 const CLOCK = new Date('2026-09-14T00:00:00.000Z');
 
-const first = hashBundle(await build(FIXTURE, { clock: CLOCK }));
-const second = hashBundle(await build(FIXTURE, { clock: CLOCK }));
+// Two builds into separate directories, then compare hashes per file. Building
+// into the same directory would let a stale file from run 1 mask a difference
+// in run 2.
+const outA = join(ROOT, '.determinism/a');
+const outB = join(ROOT, '.determinism/b');
+rmSync(join(ROOT, '.determinism'), { recursive: true, force: true });
+
+await build(FIXTURE, outA, { clock: CLOCK });
+await build(FIXTURE, outB, { clock: CLOCK });
+
+const first = hashBundle(outA);
+const second = hashBundle(outB);
 
 const paths = new Set([...first.keys(), ...second.keys()]);
 const diffs = [];
@@ -84,4 +94,5 @@ if (diffs.length > 0) {
   process.exit(1);
 }
 
+rmSync(join(ROOT, '.determinism'), { recursive: true, force: true });
 console.log(`determinism-check: identical — ${paths.size} file(s) byte-for-byte.`);

@@ -79,3 +79,9 @@ jobs:
       # Asserts every doc link and anchor resolves. Added after a restructure
       # left two specs citing filenames that no longer existed.
       - run: node scripts/link-check.mjs
+      # Asserts README/LIMITATIONS status claims still match the code. The
+      # README claimed the renderer was unbuilt for four PRs after it was built.
+      - run: node scripts/status-check.mjs
+      # Asserts README/LIMITATIONS status claims still match the code. The
+      # README claimed the renderer was unbuilt for four PRs after it was built.
+      - run: node scripts/status-check.mjs

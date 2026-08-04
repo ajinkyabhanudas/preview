@@ -16,19 +16,27 @@ others while omitting it for itself would fail on its own terms.
 
 ## 1. Status: nothing here is proven yet
 
-**The renderer is not built.** As of this writing the repository contains the
-specification, the domain model (`src/tier.ts`), the property tests that gate the
-invariant, and the CI gate scripts. Stages B2–B7 in `spec/build-v1.md` §2 do not
-exist.
+**The renderer works.** The pipeline reads a repository, resolves tiers, and
+emits a site. That is the least important thing on this page.
 
 **The standard has not survived external review.** Version 0.1 has been read by
 its author and nobody else. The adversarial review that would justify calling it
 a standard rather than a proposal is scheduled, not done.
 
-**No portfolio has been built with it.** Including the author's own.
+**No portfolio has been built with it.** Including the author's own. Every
+repository the pipeline has run against is a test fixture written by the author
+to exercise the code — which is evidence the code works, and no evidence at all
+that the standard is useful.
 
-Anyone evaluating this project today is evaluating a specification and a test
-suite, not a working product. That is the honest description.
+**The central claim is untested.** H-5 says reviewers comprehend more from the
+rendered site than from the repository. Nobody has been shown either. Under this
+project's own ladder that claim sits at E0, and it will stay there until the
+comprehension test in the validation plan runs.
+
+Software working is not the same as a hypothesis being supported. Anyone
+evaluating this project today is looking at a specification, a test suite, and a
+renderer — not at evidence that any of it changes how a reviewer reads a
+portfolio.
 
 ---
 
