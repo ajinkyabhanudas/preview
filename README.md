@@ -68,15 +68,26 @@ disappears.
 
 ## Status
 
-**Specification and test scaffolding. The renderer is not built.**
+**The renderer builds a site. The standard has not been reviewed by anyone but
+its author, and no real portfolio has been built with it.**
+
+Those two sentences are the honest summary, and the second matters more than the
+first.
 
 | Component | State |
 |---|---|
-| The standard (`spec/standard-v0.1.md`) | Draft v0.1, no external review yet |
+| The standard (`spec/standard-v0.1.md`) | Draft v0.1 — **read by its author and nobody else** |
 | Build specification (`spec/build-v1.md`) | Draft |
-| Domain model (`src/tier.ts`) | Built, 11 property tests passing |
-| Ingest / filter / validate / resolve / render / emit | Not built |
-| CI gates | Wired; two activate when the build lands |
+| Pipeline: ingest → filter → validate → resolve → render → emit | Built, 130 tests |
+| Authoring (`preview init`) | Built — extracts drafts from existing evidence |
+| CI gates | Five, all active |
+| A real portfolio built to the standard | **None, including the author's own** |
+| Practitioner review | Not started |
+| Comprehension test (H-5) | Not run |
+
+A working renderer is not evidence that the standard is any good. The central
+claim — that reviewers comprehend more from the rendered site than from the
+repository — is untested, and this project's own standard would rate it E0.
 
 See [LIMITATIONS.md](LIMITATIONS.md) for what this does not do and has not
 proven. Read it before relying on anything here.
@@ -135,6 +146,8 @@ Five, and they are separated on purpose so a failure is legible.
 | `test-leak` | No denylisted term in the **built bundle** | build §5.3 |
 | `spec-drift` | Named normative properties still exist in `spec/` | DECISIONS D9 |
 | `test-links` | Every doc link and anchor resolves | — |
+| `test-status` | Status claims in this file match the code | — |
+| `test-status` | Status claims in this file match the code | — |
 
 The property gate runs as its own CI job. When the invariant breaks, the failure
 must read as "the invariant broke", not as one red dot among two hundred unit

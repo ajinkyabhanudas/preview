@@ -479,8 +479,7 @@ Not yet decided. Listed so they are not mistaken for settled.
 
 | ID | Question | Blocked on | Needed by |
 |---|---|---|---|
-| OD-1 | Charting approach — must satisfy D1 purity with no runtime dependency | Library evaluation | Before B5 |
-| OD-2 | Unlisted slug stability across machines — local config vs. content-derived | — | Before B6 |
+| OD-2 | Unlisted slug stability across machines — local config vs. content-derived | — | Before unlisted artifacts ship |
 | OD-3 | Licence for artifacts archived into the bundle when the source repo differs | — | Before public release |
 | OD-4 | Whether the diagnostics report should be publishable | Practitioner review | Week 8 |
 | OD-5 | Schema migration path across major standard versions | — | Before 1.0.0 |
