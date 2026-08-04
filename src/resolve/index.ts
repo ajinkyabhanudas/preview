@@ -97,6 +97,74 @@ function anchorCap(claim: Claim): Tier | undefined {
   return anchored ? undefined : 'E0';
 }
 
+/**
+ * What would raise this claim one rung, stated concretely.
+ *
+ * A diagnostic that reports a cap without naming the missing requirement leaves
+ * the author to reverse-engineer the ladder from §4.3. Applying the standard to
+ * a real repository made the cost of that obvious: a project with a genuine
+ * eval suite and dated baselines could not reach E3 because it had never
+ * recorded a `golden_set_sha`, and nothing anywhere told it so.
+ *
+ * The wording names the specific missing artifact and, where one exists, the
+ * command that produces it. It never suggests declaring a higher tier.
+ */
+export function nextStep(claim: Claim, ctx: SupportContext, supported: Tier): string {
+  // E2 — a discovery synthesis with all four fields.
+  if (supported === 'E1') {
+    if (!ctx.hasDiscoverySynthesis) {
+      return (
+        'To reach E2, add a discovery synthesis with n, method, segment, and ' +
+        'recruitment all populated, and declare its path under "evidence.discovery".'
+      );
+    }
+    if (claim.n === undefined) {
+      return 'To reach E2, state n on this claim — the denominator the finding rests on.';
+    }
+  }
+
+  // E3 — a frozen, hash-pinned evaluation. This is the rung that matters most,
+  // because it is the one reachable without users.
+  if (supported === 'E2') {
+    if (!ctx.hasGoldenSet) {
+      return (
+        'To reach E3, add a non-empty golden set and declare its path under ' +
+        '"evidence.goldenSet" in preview.config.json. It need not be JSONL — ' +
+        'point at wherever your eval cases already live.'
+      );
+    }
+    if (ctx.baselineSha === undefined) {
+      return (
+        'To reach E3, record golden_set_sha in your baseline record. ' +
+        'Run `preview hash <your-golden-set>` to compute it.'
+      );
+    }
+    if (claim.goldenSetSha === undefined) {
+      return (
+        'To reach E3, record golden_set_sha on this result so it can be ' +
+        'compared against the baseline. Run `preview hash <your-golden-set>`.'
+      );
+    }
+    if (claim.goldenSetSha !== ctx.baselineSha) {
+      return (
+        'The golden set changed between the baseline and this result, so the ' +
+        'comparison is not meaningful. Either re-run against the baseline set, ' +
+        'or record this as a new baseline rather than a comparison.'
+      );
+    }
+  }
+
+  if (supported === 'E3') {
+    return 'E4 requires instrumented usage — a real market. E3 is the ceiling without users, and it is the harder tier to fake.';
+  }
+
+  if (supported === 'E4' && !ctx.hasComparisonSpec) {
+    return 'To reach E5, add a comparison spec with named arms and per-arm n.';
+  }
+
+  return '';
+}
+
 export interface ResolutionOutcome {
   readonly claim: ResolvedClaim;
   readonly diagnostics: readonly Diagnostic[];
@@ -153,7 +221,7 @@ export function resolveClaim(claim: Claim, ctx: SupportContext): ResolutionOutco
       code: 'tier-overclaim',
       message:
         `Declared ${claim.declared} but the repository supports ${supported}. ` +
-        `Rendering at ${rendered}.`,
+        `Rendering at ${rendered}. ${nextStep(claim, ctx, supported)}`,
     });
   }
 
