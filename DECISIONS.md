@@ -425,6 +425,54 @@ convenience. The test is whether committed artifacts still contain unedited
 
 ---
 
+## D12 — Hand-rolled SVG charts, no charting library (resolves OD-1)
+
+**Status:** ACTIVE · 2026-08
+
+**Context.** The renderer draws eval results. D1 requires the build to be a pure
+deterministic function: no DOM, no network, no ambient clock. Most charting
+libraries assume a browser, measure text against fonts, or emit non-deterministic
+identifiers — any of which breaks byte-identical output and therefore breaks
+both reproducible builds and golden-file testing.
+
+**Options considered.**
+
+1. **A browser-oriented charting library** (Chart.js, D3 with jsdom). Rejected:
+   requires a DOM, and jsdom is a large dependency whose text measurement varies
+   with available fonts.
+2. **A server-side SVG charting library.** Closer, but every candidate carries
+   transitive dependencies, and most generate `id` attributes or gradient
+   references from counters or randomness that differ between runs.
+3. **Hand-rolled SVG from data.** Two chart types, emitted as strings.
+
+**Decision.** Option 3.
+
+**Why.** The requirement is genuinely small: a per-class before/after bar chart
+and a delta chart. That is arithmetic and string concatenation. A library would
+add a dependency, a determinism risk, and a supply-chain surface in exchange for
+work that is a day.
+
+The constraint also cuts the other way and is worth stating: because charts must
+degrade to legible summary text below narrow breakpoints (standard §8.4), the
+chart is never the only representation of the data. A library optimising for
+interactive richness is optimising for something this product does not want.
+
+**Accepted cost.** Two chart types is the ceiling without more work. Anything
+beyond a bar chart — scatter, distribution, time series — is a new
+implementation rather than a configuration change. Accepted, because the
+standard's results format is per-class pass rates, and that is a bar chart.
+
+**Determinism obligations this creates.** No `Math.random`, no `Date.now`, no
+counters that survive between renders. Every element identifier derives from
+content. Numbers are formatted with a fixed precision rather than locale
+defaults, since locale is an environment read.
+
+**Reversal condition.** A results format that genuinely needs a chart type
+outside the bar family. At that point re-evaluate libraries against the same
+purity constraint rather than extending the hand-rolled code indefinitely.
+
+---
+
 ## Open decisions
 
 Not yet decided. Listed so they are not mistaken for settled.
