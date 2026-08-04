@@ -48,6 +48,36 @@ function toPosixRelative(root: string, absolute: string): string {
   return relative(root, absolute).split(sep).join('/');
 }
 
+/**
+ * Extra directories to walk, derived from declared evidence paths.
+ *
+ * Takes the literal prefix of each pattern up to the first wildcard, so
+ * `tests/eval/queries.py` yields `tests/eval` and `benchmark_results/*.json`
+ * yields `benchmark_results`. Only directories inside the repository are
+ * returned; containment is re-checked during the walk regardless.
+ *
+ * Deduplicated and sorted so traversal order is stable (D1).
+ */
+function declaredRoots(config: Readonly<Record<string, unknown>>): readonly string[] {
+  const evidence = config['evidence'];
+  if (evidence === null || typeof evidence !== 'object' || Array.isArray(evidence)) return [];
+
+  const roots = new Set<string>();
+  for (const value of Object.values(evidence as Record<string, unknown>)) {
+    if (!Array.isArray(value)) continue;
+    for (const pattern of value) {
+      if (typeof pattern !== 'string' || pattern.length === 0) continue;
+      if (pattern.startsWith('/') || pattern.includes('..')) continue;
+
+      const literal = pattern.split('*')[0] ?? '';
+      const dir = literal.includes('/') ? literal.slice(0, literal.lastIndexOf('/')) : '';
+      if (dir.length > 0) roots.add(dir);
+    }
+  }
+
+  return [...roots].sort();
+}
+
 async function walk(root: string, dir: string, out: SourceFile[], skipped: string[]): Promise<void> {
   let entries: string[];
   try {
@@ -107,10 +137,9 @@ export async function ingest(repoRoot: string): Promise<IngestResult> {
   const files: SourceFile[] = [];
   const skipped: string[] = [];
 
-  for (const subdir of INGEST_ROOTS) {
-    await walk(root, join(root, subdir), files, skipped);
-  }
-
+  // Config is read first, because it can declare evidence outside the standard's
+  // prescribed directories. A real repository keeps its eval set where its test
+  // tooling expects it, not where this standard would prefer.
   let config: Record<string, unknown> = {};
   try {
     const raw = await readFile(join(root, CONFIG_FILE), 'utf8');
@@ -122,6 +151,19 @@ export async function ingest(repoRoot: string): Promise<IngestResult> {
     // A missing or malformed config is not fatal: every value it carries has a
     // safe default, and the defaults are the restrictive ones.
   }
+
+  for (const subdir of [...INGEST_ROOTS, ...declaredRoots(config)]) {
+    await walk(root, join(root, subdir), files, skipped);
+  }
+
+  // A declared root may sit inside a default root (`docs/product/discovery`
+  // under `docs/product`), which walks the same tree twice and would emit every
+  // file — and therefore every claim — twice. Deduplicate by path, keeping the
+  // first occurrence so ordering stays deterministic.
+  const seen = new Set<string>();
+  const unique = files.filter((f) => (seen.has(f.path) ? false : (seen.add(f.path), true)));
+  files.length = 0;
+  files.push(...unique);
 
   return {
     snapshot: { files, config },

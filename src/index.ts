@@ -17,6 +17,7 @@ import { ingest } from './ingest/index.js';
 import { filterByVisibility } from './filter/index.js';
 import { parseAll } from './validate/frontmatter.js';
 import { buildSupportContext, validateAll } from './validate/schema.js';
+import { readEvidenceMap } from './validate/evidence-map.js';
 import { resolveAll } from './resolve/index.js';
 import { renderDocument, type FrontDoor } from './render/document.js';
 import { missingElements, parseFrontDoor } from './render/front-door.js';
@@ -76,7 +77,13 @@ export async function analyse(repoRoot: string, options: BuildOptions): Promise<
   const validated = validateAll(parsed.documents);
 
   // 4. Resolve — min(declared, supported). The security-relevant stage.
-  const support = buildSupportContext(parsed.documents, validated.claims);
+  // Evidence locations are declared by the author, defaulting to the layout
+  // the standard prescribes for new work.
+  const support = buildSupportContext(
+    parsed.documents,
+    validated.claims,
+    readEvidenceMap(snapshot.config),
+  );
   const resolved = resolveAll(validated.claims, support);
 
   return {
@@ -138,3 +145,4 @@ export * from './model.js';
 export { renderDocument, type FrontDoor } from './render/document.js';
 export { renderResultFigure, type Series } from './render/chart.js';
 export { parseFrontDoor, missingElements } from './render/front-door.js';
+export { DEFAULT_EVIDENCE_MAP, readEvidenceMap, matchesGlob, type EvidenceMap } from './validate/evidence-map.js';

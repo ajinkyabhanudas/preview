@@ -21,6 +21,11 @@ import {
   type RawFrontMatter,
 } from '../model.js';
 import type { SupportContext } from '../resolve/index.js';
+import {
+  DEFAULT_EVIDENCE_MAP,
+  resolveEvidence,
+  type EvidenceMap,
+} from './evidence-map.js';
 
 /**
  * Render an untrusted value for a diagnostic message.
@@ -203,11 +208,19 @@ export function validateAll(documents: readonly ParsedDocument[]): ValidationRes
 export function buildSupportContext(
   documents: readonly ParsedDocument[],
   claims: readonly Claim[],
+  evidence: EvidenceMap = DEFAULT_EVIDENCE_MAP,
 ): SupportContext {
   const byPath = new Map(documents.map((d) => [d.path, d]));
+  const allPaths = documents.map((d) => d.path);
+
+  /** Documents matching a declared evidence kind. */
+  const matching = (kind: Parameters<typeof resolveEvidence>[1]): readonly ParsedDocument[] =>
+    resolveEvidence(evidence, kind, allPaths)
+      .map((p) => byPath.get(p))
+      .filter((d): d is ParsedDocument => d !== undefined);
 
   // E2 — discovery synthesis with n, method, segment, recruitment populated.
-  const synthesis = byPath.get('docs/product/discovery/synthesis.md');
+  const synthesis = matching('discovery')[0];
   const hasDiscoverySynthesis =
     synthesis !== undefined &&
     readCount(synthesis.frontMatter['n']) !== undefined &&
@@ -215,19 +228,19 @@ export function buildSupportContext(
     readText(synthesis.frontMatter['segment']) !== undefined &&
     readText(synthesis.frontMatter['recruitment']) !== undefined;
 
-  // E3 — a non-empty golden set must exist on disk.
-  const hasGoldenSet = documents.some(
-    (d) => d.path.startsWith('evals/golden/') && d.body.trim().length > 0,
-  );
+  // E3 — a non-empty golden set must exist on disk. Its location is declared
+  // by the author, because a real repository organises evidence around its own
+  // testing conventions rather than around this standard's layout.
+  const hasGoldenSet = matching('goldenSet').some((d) => d.body.trim().length > 0);
 
   // E3 — the baseline's hash is the reference every result is compared against.
-  const baselineDoc = documents.find((d) => d.path.startsWith('evals/baseline-'));
+  const baselineDoc = matching('baseline')[0];
   const baselineSha =
     baselineDoc !== undefined ? readSha(baselineDoc.frontMatter['golden_set_sha']) : undefined;
 
   // E4 / E5 — presence only; the schema checks live in the claims themselves.
-  const hasInstrumentation = byPath.has('docs/product/instrumentation.md');
-  const hasComparisonSpec = byPath.has('docs/product/comparison.md');
+  const hasInstrumentation = matching('instrumentation').length > 0;
+  const hasComparisonSpec = matching('comparison').length > 0;
 
   // `claims` is accepted so future rules can depend on cross-claim state
   // (e.g. a results record referencing a baseline that no claim declares)
